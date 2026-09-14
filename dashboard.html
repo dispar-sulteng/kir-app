@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard — Sistem Informasi KIR</title>
+<link rel="stylesheet" href="css/style.css" />
+<script>
+  // Cegah tampilan berkedip sebelum pengecekan login selesai.
+  if (localStorage.getItem("kir_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content">
+      <div class="stat-grid" id="stat-grid"></div>
+
+      <div class="card" style="padding:22px;">
+        <h2 class="section-title">Ringkasan Ruangan</h2>
+        <div class="table-wrap" style="box-shadow:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Ruangan</th>
+                <th>Jumlah Jenis Barang</th>
+                <th>Total Unit</th>
+              </tr>
+            </thead>
+            <tbody id="ringkasan-ruangan-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

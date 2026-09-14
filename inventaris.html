@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Data Inventaris — Sistem Informasi KIR</title>
+<link rel="stylesheet" href="css/style.css" />
+<script>
+  if (localStorage.getItem("kir_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content">
+      <div class="toolbar">
+        <div class="toolbar-filters">
+          <input type="text" id="filter-search" class="search-input" placeholder="Cari nama barang..." />
+          <select id="filter-ruangan">
+            <option value="">Semua Ruangan</option>
+          </select>
+          <select id="filter-tahun-kir">
+            <option value="">Semua Tahun KIR</option>
+          </select>
+          <select id="filter-semester-kir">
+            <option value="">Semua Semester KIR</option>
+            <option value="Semester I">Semester I</option>
+            <option value="Semester II">Semester II</option>
+          </select>
+          <select id="filter-kondisi">
+            <option value="">Semua Kondisi</option>
+            <option value="Baik">Baik</option>
+            <option value="Kurang Baik">Kurang Baik</option>
+            <option value="Rusak Berat">Rusak Berat</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-tambah-barang" type="button">+ Tambah Barang</button>
+      </div>
+
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:-8px 0 14px;">
+        Menampilkan pencatatan barang per <strong>Ruangan + Tahun KIR + Semester</strong>. Barang yang sama bisa muncul lebih dari satu kali jika tercatat pada KIR tahun berbeda.
+      </p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Barang</th>
+              <th>Jenis/Merek</th>
+              <th>Tahun Perolehan</th>
+              <th>Jumlah</th>
+              <th>Kondisi</th>
+              <th>Ruangan</th>
+              <th>Tahun KIR</th>
+              <th>Keterangan</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-barang-body"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- MODAL TAMBAH / EDIT BARANG -->
+<div class="modal-overlay" id="modal-barang">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-barang-title">Tambah Barang</h2>
+      <button class="modal-close" type="button" id="modal-barang-close">&times;</button>
+    </div>
+    <form id="form-barang">
+      <div class="modal-body">
+        <input type="hidden" id="inventaris-id" />
+        <input type="hidden" id="aset-id" />
+
+        <div class="field field-full" style="margin-bottom:16px;">
+          <label style="margin-bottom:8px;">Sumber Data Barang</label>
+          <div style="display:flex;gap:18px;font-size:0.88rem;font-weight:500;">
+            <label style="display:flex;align-items:center;gap:6px;font-weight:500;">
+              <input type="radio" name="sumber-aset" id="sumber-aset-baru" value="baru" checked />
+              Barang baru
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-weight:500;">
+              <input type="radio" name="sumber-aset" id="sumber-aset-katalog" value="katalog" />
+              Pilih dari barang yang sudah pernah dicatat
+            </label>
+          </div>
+        </div>
+
+        <div class="field field-full" id="wrap-pilih-katalog" style="display:none;">
+          <label for="pilih-katalog">Barang dari Katalog</label>
+          <select id="pilih-katalog"></select>
+          <div id="info-pemakaian-aset" style="font-size:0.8rem;color:var(--warn-text);margin-top:6px;display:none;"></div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field field-full">
+            <label for="barang-nama">Nama Barang *</label>
+            <input type="text" id="barang-nama" placeholder="Contoh: Lemari Arsip" />
+            <div class="field-error" id="err-barang-nama">Nama barang wajib diisi.</div>
+          </div>
+
+          <div class="field">
+            <label for="barang-jenis">Jenis / Merek</label>
+            <input type="text" id="barang-jenis" placeholder="Contoh: Kayu / LG" />
+          </div>
+          <div class="field">
+            <label for="barang-bahan">Bahan</label>
+            <input type="text" id="barang-bahan" placeholder="Contoh: Kayu, Besi" />
+          </div>
+
+          <div class="field">
+            <label for="barang-noseri">No Seri / Pabrik</label>
+            <input type="text" id="barang-noseri" placeholder="-" />
+          </div>
+          <div class="field">
+            <label for="barang-noregister">No Register</label>
+            <input type="text" id="barang-noregister" placeholder="-" />
+          </div>
+
+          <div class="field">
+            <label for="barang-tahun-perolehan">Tahun Perolehan *</label>
+            <input type="number" id="barang-tahun-perolehan" placeholder="Contoh: 2021" min="1900" max="2100" />
+            <div class="field-error" id="err-barang-tahun-perolehan">Masukkan tahun perolehan yang valid (1900–2100).</div>
+            <div style="font-size:0.78rem;color:var(--text-faint);margin-top:4px;">Tahun barang ini diperoleh/dibeli. Tetap sama meskipun tercatat di beberapa KIR.</div>
+          </div>
+          <div class="field">
+            <label for="barang-kode">Kode Barang</label>
+            <input type="text" id="barang-kode" placeholder="-" />
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-top:4px;padding-top:14px;border-top:1px dashed var(--border-strong);">
+          <div class="field field-full" style="margin-bottom:-4px;">
+            <label style="margin-bottom:2px;">Pencatatan KIR</label>
+            <p style="margin:0 0 10px;font-size:0.8rem;color:var(--text-muted);">
+              Menentukan KIR mana (ruangan + tahun + semester) yang mencatat barang ini. Barang yang sama boleh dicatat lagi pada KIR tahun lain.
+            </p>
+          </div>
+
+          <div class="field">
+            <label for="barang-ruangan">Ruangan *</label>
+            <select id="barang-ruangan"></select>
+            <div class="field-error" id="err-barang-ruangan">Pilih ruangan terlebih dahulu. Tambahkan ruangan di menu Data Ruangan jika belum ada.</div>
+          </div>
+          <div class="field">
+            <label for="barang-semester-kir">Semester KIR *</label>
+            <select id="barang-semester-kir">
+              <option value="Semester I">Semester I</option>
+              <option value="Semester II">Semester II</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="barang-tahun-kir">Tahun KIR *</label>
+            <input type="number" id="barang-tahun-kir" min="1990" max="2100" placeholder="Contoh: 2026" />
+            <div class="field-error" id="err-barang-tahun-kir">Masukkan tahun KIR yang valid (1990–2100).</div>
+          </div>
+          <div class="field">
+            <label for="barang-jumlah">Jumlah *</label>
+            <input type="number" id="barang-jumlah" min="1" placeholder="Contoh: 1" />
+            <div class="field-error" id="err-barang-jumlah">Jumlah minimal 1.</div>
+          </div>
+
+          <div class="field">
+            <label for="barang-kondisi">Kondisi *</label>
+            <select id="barang-kondisi">
+              <option value="Baik">Baik</option>
+              <option value="Kurang Baik">Kurang Baik</option>
+              <option value="Rusak Berat">Rusak Berat</option>
+            </select>
+          </div>
+          <div class="field"></div>
+
+          <div class="field field-full">
+            <label for="barang-keterangan">Keterangan</label>
+            <textarea id="barang-keterangan" rows="2" placeholder="Contoh: Koridor Bawah"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="modal-barang-cancel">Batal</button>
+        <button type="submit" class="btn btn-primary" id="modal-barang-submit">Simpan Barang</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL LIHAT DETAIL -->
+<div class="modal-overlay" id="modal-lihat">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Detail Barang</h2>
+      <button class="modal-close" type="button" id="modal-lihat-close">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-lihat-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="modal-lihat-tutup">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/inventaris.js"></script>
+</body>
+</html>
