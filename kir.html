@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kartu Inventaris Ruangan — Sistem Informasi KIR</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/print.css" />
+<script>
+  if (localStorage.getItem("kir_logged_in") !== "true") {
+    window.location.href = "index.html";
+  }
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content">
+
+      <div class="card no-print" style="padding:22px;margin-bottom:20px;">
+        <h2 class="section-title">Arsip Kartu Tersimpan</h2>
+        <p style="margin:-6px 0 14px;font-size:0.85rem;color:var(--text-muted);">
+          Satu ruangan bisa memiliki lebih dari satu kartu, dibedakan menurut semester dan tahun pembuatannya. Pilih salah satu arsip di bawah untuk langsung ditampilkan, atau gunakan form di bawahnya untuk membuka kombinasi lain.
+        </p>
+        <div class="table-wrap" style="box-shadow:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Ruangan</th>
+                <th>Semester KIR</th>
+                <th>Tahun KIR</th>
+                <th>Jumlah Jenis Barang</th>
+                <th>Total Unit</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="arsip-kartu-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <h2 class="section-title no-print">Tampilkan / Buat Kartu</h2>
+      <div class="card kir-selector">
+        <div class="field">
+          <label for="pilih-ruangan">Ruangan</label>
+          <select id="pilih-ruangan"></select>
+        </div>
+        <div class="field">
+          <label for="pilih-semester">Semester KIR</label>
+          <select id="pilih-semester">
+            <option value="Semester I">Semester I</option>
+            <option value="Semester II">Semester II</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pilih-tahun">Tahun KIR</label>
+          <input type="number" id="pilih-tahun" min="1990" max="2100" />
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end;">
+          <button class="btn btn-primary btn-block" id="btn-tampilkan" type="button">Tampilkan Kartu</button>
+        </div>
+      </div>
+
+      <div class="card kir-identitas-panel">
+        <h2 class="section-title">Identitas Kartu Inventaris</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label for="id-organisasi">Organisasi Perangkat Daerah</label>
+            <input type="text" id="id-organisasi" />
+          </div>
+          <div class="field">
+            <label for="id-provinsi">Provinsi</label>
+            <input type="text" id="id-provinsi" />
+          </div>
+          <div class="field">
+            <label for="id-kota">Kota</label>
+            <input type="text" id="id-kota" />
+          </div>
+
+          <div class="field">
+            <label for="id-pengguna">Pengguna Barang</label>
+            <input type="text" id="id-pengguna" placeholder="Nama pengguna barang" />
+          </div>
+          <div class="field">
+            <label for="id-nip-pengguna">NIP Pengguna Barang</label>
+            <input type="text" id="id-nip-pengguna" />
+          </div>
+          <div class="field">
+            <label for="id-tanggal">Tanggal</label>
+            <input type="date" id="id-tanggal" />
+          </div>
+
+          <div class="field">
+            <label for="id-pengurus">Pengurus Barang</label>
+            <input type="text" id="id-pengurus" placeholder="Nama pengurus barang" />
+          </div>
+          <div class="field">
+            <label for="id-nip-pengurus">NIP Pengurus Barang</label>
+            <input type="text" id="id-nip-pengurus" />
+          </div>
+          <div class="field"></div>
+
+          <div class="field">
+            <label for="id-penanggung">Penanggung Jawab</label>
+            <input type="text" id="id-penanggung" placeholder="Nama penanggung jawab" />
+          </div>
+          <div class="field">
+            <label for="id-nip-penanggung">NIP Penanggung Jawab</label>
+            <input type="text" id="id-nip-penanggung" />
+          </div>
+          <div class="field"></div>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="btn-simpan-identitas" type="button" style="margin-top:14px;">Simpan Identitas</button>
+      </div>
+
+      <div id="kir-result">
+        <div class="kir-actions">
+          <button class="btn btn-primary" id="btn-cetak">Cetak Kartu</button>
+        </div>
+
+        <div class="kir-doc" id="kir-doc">
+          <div class="kir-doc-head">
+            <p class="doc-title">Kartu Inventaris Ruangan</p>
+            <p class="doc-subtitle" id="doc-periode-label"></p>
+          </div>
+
+          <div class="kir-doc-meta" id="kir-doc-meta"></div>
+
+          <div class="kir-table-scroll">
+            <table class="kir-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">No</th>
+                  <th rowspan="2">Nama Barang</th>
+                  <th rowspan="2">Jenis / Merek</th>
+                  <th rowspan="2">No Seri / Pabrik</th>
+                  <th rowspan="2">No Register</th>
+                  <th rowspan="2">Bahan</th>
+                  <th rowspan="2">Tahun</th>
+                  <th rowspan="2">Kode Barang</th>
+                  <th rowspan="2">Jumlah Barang</th>
+                  <th colspan="3">Kondisi Barang</th>
+                  <th rowspan="2">Keterangan</th>
+                </tr>
+                <tr>
+                  <th>B</th>
+                  <th>KB</th>
+                  <th>RB</th>
+                </tr>
+              </thead>
+              <tbody id="kir-table-body"></tbody>
+            </table>
+          </div>
+
+          <div class="kir-doc-signatures">
+            <div>
+              <p class="sign-role">Mengetahui,<br/>Pengguna Barang</p>
+              <div class="sign-space"></div>
+              <div class="sign-line"></div>
+              <p class="sign-name" id="sign-pengguna">-</p>
+              <p class="sign-nip" id="sign-nip-pengguna">NIP. -</p>
+            </div>
+            <div>
+              <p class="sign-role">Pengurus Barang</p>
+              <div class="sign-space"></div>
+              <div class="sign-line"></div>
+              <p class="sign-name" id="sign-pengurus">-</p>
+              <p class="sign-nip" id="sign-nip-pengurus">NIP. -</p>
+            </div>
+            <div>
+              <p class="sign-role">Penanggung Jawab</p>
+              <div class="sign-space"></div>
+              <div class="sign-line"></div>
+              <p class="sign-name" id="sign-penanggung">-</p>
+              <p class="sign-nip" id="sign-nip-penanggung">NIP. -</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/kir.js"></script>
+</body>
+</html>

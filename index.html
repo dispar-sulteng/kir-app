@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Masuk — Sistem Informasi KIR</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-card">
+    <div class="login-badge">KIR</div>
+    <h1>Sistem Informasi Kartu Inventaris Ruangan</h1>
+    <p class="subtitle">Dinas Pariwisata Provinsi Sulawesi Tengah — silakan masuk untuk mengelola data inventaris.</p>
+
+    <form id="form-login" novalidate>
+      <div class="field">
+        <label for="username">Nama Pengguna</label>
+        <input type="text" id="username" name="username" autocomplete="username" placeholder="Masukkan nama pengguna" />
+        <div class="field-error" id="err-username">Nama pengguna wajib diisi.</div>
+      </div>
+      <div class="field">
+        <label for="password">Kata Sandi</label>
+        <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Masukkan kata sandi" />
+        <div class="field-error" id="err-password">Kata sandi wajib diisi.</div>
+      </div>
+      <div class="field-error" id="err-login" style="margin-bottom:14px;">Nama pengguna atau kata sandi salah.</div>
+      <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+    </form>
+
+    <div class="login-hint">
+      Demo prototype — gunakan akun berikut untuk masuk:<br />
+      Nama pengguna: <code>admin</code> &nbsp; Kata sandi: <code>admin123</code>
+    </div>
+  </div>
+
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>
