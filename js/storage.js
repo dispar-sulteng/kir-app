@@ -29,6 +29,15 @@ function generateId(prefix) {
   return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+/* Field "jumlah" sekarang boleh diisi teks (misalnya "1 set", "sepasang"),
+   bukan cuma angka. Untuk kebutuhan penjumlahan (total unit di Dashboard
+   dan Arsip Kartu), nilai non-angka dihitung sebagai 0 alih-alih membuat
+   totalnya jadi NaN/rusak. */
+function toAngka(value) {
+  const n = parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
 /* -------------------------------------------------------------------------
    MAPPING: baris database (snake_case) <-> objek aplikasi (camelCase)
    ------------------------------------------------------------------------- */
@@ -316,7 +325,7 @@ async function getKartuArsipList() {
     }
     const entry = map.get(key);
     entry.jumlahJenis += 1;
-    entry.totalUnit += Number(inv.jumlah || 0);
+    entry.totalUnit += toAngka(inv.jumlah);
   });
 
   return Array.from(map.values()).sort((a, b) => {

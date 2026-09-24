@@ -29,7 +29,7 @@ create table if not exists inventaris_kir (
   ruangan_id text references ruangan(id) on delete cascade,
   tahun_kir integer not null,
   semester_kir text not null,
-  jumlah integer not null default 1,
+  jumlah text not null default '1',
   kondisi text not null default 'Baik',
   keterangan text
 );
@@ -95,11 +95,11 @@ insert into aset (id, nama_barang, jenis_merek, no_seri, no_register, bahan, tah
 on conflict (id) do nothing;
 
 insert into inventaris_kir (id, aset_id, ruangan_id, tahun_kir, semester_kir, jumlah, kondisi, keterangan) values
-  ('inv-1', 'aset-1', 'ruang-lobby-bawah', 2024, 'Semester I', 1, 'Baik', 'Koridor Bawah'),
-  ('inv-2', 'aset-2', 'ruang-lobby-bawah', 2024, 'Semester I', 2, 'Baik', 'Koridor Bawah'),
-  ('inv-3', 'aset-3', 'ruang-lobby-bawah', 2024, 'Semester I', 1, 'Baik', 'Koridor Bawah'),
-  ('inv-4', 'aset-4', 'ruang-lobby-bawah', 2024, 'Semester I', 4, 'Baik', 'Koridor Bawah'),
-  ('inv-5', 'aset-5', 'ruang-lobby-bawah', 2024, 'Semester I', 1, 'Baik', 'Koridor Bawah'),
-  ('inv-6', 'aset-6', 'ruang-lobby-bawah', 2024, 'Semester I', 1, 'Baik', 'Koridor Bawah'),
-  ('inv-7', 'aset-7', 'ruang-lobby-bawah', 2024, 'Semester I', 1, 'Baik', 'Koridor Bawah')
+  ('inv-1', 'aset-1', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah'),
+  ('inv-2', 'aset-2', 'ruang-lobby-bawah', 2024, 'Semester I', '2', 'Baik', 'Koridor Bawah'),
+  ('inv-3', 'aset-3', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah'),
+  ('inv-4', 'aset-4', 'ruang-lobby-bawah', 2024, 'Semester I', '4', 'Baik', 'Koridor Bawah'),
+  ('inv-5', 'aset-5', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah'),
+  ('inv-6', 'aset-6', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah'),
+  ('inv-7', 'aset-7', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah')
 on conflict (id) do nothing;

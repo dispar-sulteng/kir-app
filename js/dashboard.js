@@ -34,11 +34,11 @@ async function render() {
     return;
   }
 
-  const totalBarang = inventaris.reduce((sum, b) => sum + Number(b.jumlah || 0), 0);
+  const totalBarang = inventaris.reduce((sum, b) => sum + toAngka(b.jumlah), 0);
   const totalRuangan = ruangan.length;
-  const baik = inventaris.filter((b) => b.kondisi === "Baik").reduce((s, b) => s + Number(b.jumlah || 0), 0);
-  const kurangBaik = inventaris.filter((b) => b.kondisi === "Kurang Baik").reduce((s, b) => s + Number(b.jumlah || 0), 0);
-  const rusakBerat = inventaris.filter((b) => b.kondisi === "Rusak Berat").reduce((s, b) => s + Number(b.jumlah || 0), 0);
+  const baik = inventaris.filter((b) => b.kondisi === "Baik").reduce((s, b) => s + toAngka(b.jumlah), 0);
+  const kurangBaik = inventaris.filter((b) => b.kondisi === "Kurang Baik").reduce((s, b) => s + toAngka(b.jumlah), 0);
+  const rusakBerat = inventaris.filter((b) => b.kondisi === "Rusak Berat").reduce((s, b) => s + toAngka(b.jumlah), 0);
 
   document.getElementById("stat-grid").innerHTML =
     statCardHtml("total", totalBarang, "Total Barang (unit)") +
@@ -56,7 +56,7 @@ async function render() {
   tbody.innerHTML = ruangan
     .map((r) => {
       const barangDiRuangan = inventaris.filter((b) => b.ruanganId === r.id);
-      const totalUnit = barangDiRuangan.reduce((s, b) => s + Number(b.jumlah || 0), 0);
+      const totalUnit = barangDiRuangan.reduce((s, b) => s + toAngka(b.jumlah), 0);
       return `
         <tr>
           <td>${escapeHtml(r.nama)}</td>

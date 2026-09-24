@@ -129,10 +129,10 @@
           </div>
 
           <div class="field">
-            <label for="barang-tahun-perolehan">Tahun Perolehan *</label>
-            <input type="number" id="barang-tahun-perolehan" placeholder="Contoh: 2021" min="1900" max="2100" />
-            <div class="field-error" id="err-barang-tahun-perolehan">Masukkan tahun perolehan yang valid (1900–2100).</div>
-            <div style="font-size:0.78rem;color:var(--text-faint);margin-top:4px;">Tahun barang ini diperoleh/dibeli. Tetap sama meskipun tercatat di beberapa KIR.</div>
+            <label for="barang-tahun-perolehan">Tahun Perolehan</label>
+            <input type="number" id="barang-tahun-perolehan" placeholder="Contoh: 2021 (boleh dikosongkan)" min="1900" max="2100" />
+            <div class="field-error" id="err-barang-tahun-perolehan">Kalau diisi, masukkan tahun yang valid (1900–2100).</div>
+            <div style="font-size:0.78rem;color:var(--text-faint);margin-top:4px;">Boleh dikosongkan kalau tahun perolehan barang tidak diketahui. Kalau diisi, tetap sama meskipun barang tercatat di beberapa KIR.</div>
           </div>
           <div class="field">
             <label for="barang-kode">Kode Barang</label>
@@ -168,8 +168,8 @@
           </div>
           <div class="field">
             <label for="barang-jumlah">Jumlah *</label>
-            <input type="number" id="barang-jumlah" min="1" placeholder="Contoh: 1" />
-            <div class="field-error" id="err-barang-jumlah">Jumlah minimal 1.</div>
+            <input type="text" id="barang-jumlah" placeholder="Contoh: 2, atau '1 set', 'sepasang'" />
+            <div class="field-error" id="err-barang-jumlah">Jumlah wajib diisi.</div>
           </div>
 
           <div class="field">

@@ -8,7 +8,7 @@
    policy di database, bukan dengan menyembunyikan key ini.
    ========================================================================= */
 
-const SUPABASE_URL = "https://peyyootevwqydlwfxzic.supabase.co"; // contoh: https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBleXlvb3RldndxeWRsd2Z4emljIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMzQzMDksImV4cCI6MjEwNDkxMDMwOX0.YZD7iX3oqYpH6Hnki9_z1U6_7Bh7rnjfWx93uexuGEs";
+const SUPABASE_URL = "GANTI_DENGAN_PROJECT_URL_KAMU"; // contoh: https://xxxxx.supabase.co
+const SUPABASE_ANON_KEY = "GANTI_DENGAN_ANON_KEY_KAMU";
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);

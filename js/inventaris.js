@@ -71,7 +71,7 @@ async function refreshKatalogOptions() {
         asetList
           .map(
             (a) =>
-              `<option value="${a.id}">${escapeHtml(a.namaBarang)} — ${escapeHtml(a.jenisMerek || "-")} (${escapeHtml(a.tahunPerolehan)})</option>`
+              `<option value="${a.id}">${escapeHtml(a.namaBarang)} — ${escapeHtml(a.jenisMerek || "-")} (${escapeHtml(a.tahunPerolehan || "-")})</option>`
           )
           .join("")
       : `<option value="" disabled selected>Belum ada barang di katalog</option>`;
@@ -121,7 +121,7 @@ async function renderTabel() {
         <td>${idx + 1}</td>
         <td>${escapeHtml(inv.namaBarang)}</td>
         <td>${escapeHtml(inv.jenisMerek || "-")}</td>
-        <td>${escapeHtml(inv.tahunPerolehan)}</td>
+        <td>${escapeHtml(inv.tahunPerolehan || "-")}</td>
         <td>${escapeHtml(inv.jumlah)}</td>
         <td><span class="${kondisiBadgeClass(inv.kondisi)}">${escapeHtml(inv.kondisi)}</span></td>
         <td>${escapeHtml(inv.namaRuangan)}</td>
@@ -227,7 +227,7 @@ async function openModalEdit(id) {
   document.getElementById("barang-bahan").value = aset.bahan || "";
   document.getElementById("barang-noseri").value = aset.noSeri || "";
   document.getElementById("barang-noregister").value = aset.noRegister || "";
-  document.getElementById("barang-tahun-perolehan").value = aset.tahunPerolehan;
+  document.getElementById("barang-tahun-perolehan").value = aset.tahunPerolehan || "";
   document.getElementById("barang-kode").value = aset.kodeBarang || "";
 
   const jumlahDipakai = await jumlahPemakaianAset(aset.id);
@@ -259,7 +259,7 @@ formBarang.addEventListener("submit", async (e) => {
 
   const nama = document.getElementById("barang-nama").value.trim();
   const tahunPerolehan = document.getElementById("barang-tahun-perolehan").value;
-  const jumlah = document.getElementById("barang-jumlah").value;
+  const jumlah = document.getElementById("barang-jumlah").value.trim();
   const ruanganId = selectRuanganBarang.value;
   const tahunKir = document.getElementById("barang-tahun-kir").value;
 
@@ -269,12 +269,14 @@ formBarang.addEventListener("submit", async (e) => {
     document.getElementById("err-barang-nama").classList.add("show");
     valid = false;
   }
-  if (!tahunPerolehan || tahunPerolehan < 1900 || tahunPerolehan > 2100) {
+  // Tahun Perolehan boleh kosong (tidak semua barang diketahui tahunnya).
+  // Kalau diisi, tetap divalidasi rentangnya supaya masuk akal.
+  if (tahunPerolehan && (tahunPerolehan < 1900 || tahunPerolehan > 2100)) {
     document.getElementById("barang-tahun-perolehan").classList.add("invalid");
     document.getElementById("err-barang-tahun-perolehan").classList.add("show");
     valid = false;
   }
-  if (!jumlah || jumlah < 1) {
+  if (!jumlah) {
     document.getElementById("barang-jumlah").classList.add("invalid");
     document.getElementById("err-barang-jumlah").classList.add("show");
     valid = false;
@@ -297,7 +299,7 @@ formBarang.addEventListener("submit", async (e) => {
     bahan: document.getElementById("barang-bahan").value.trim() || "-",
     noSeri: document.getElementById("barang-noseri").value.trim() || "-",
     noRegister: document.getElementById("barang-noregister").value.trim() || "-",
-    tahunPerolehan: Number(tahunPerolehan),
+    tahunPerolehan: tahunPerolehan ? Number(tahunPerolehan) : null,
     kodeBarang: document.getElementById("barang-kode").value.trim() || "-",
   };
 
@@ -317,7 +319,7 @@ formBarang.addEventListener("submit", async (e) => {
       ruanganId,
       semesterKir: document.getElementById("barang-semester-kir").value,
       tahunKir: Number(tahunKir),
-      jumlah: Number(jumlah),
+      jumlah,
       kondisi: document.getElementById("barang-kondisi").value,
       keterangan: document.getElementById("barang-keterangan").value.trim(),
     };
@@ -353,7 +355,7 @@ async function openModalLihat(id) {
     ["Bahan", inv.bahan],
     ["No Seri / Pabrik", inv.noSeri],
     ["No Register", inv.noRegister],
-    ["Tahun Perolehan", inv.tahunPerolehan],
+    ["Tahun Perolehan", inv.tahunPerolehan || "-"],
     ["Kode Barang", inv.kodeBarang],
     ["Jumlah", inv.jumlah],
     ["Kondisi", inv.kondisi],

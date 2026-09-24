@@ -103,6 +103,14 @@ document.getElementById("btn-simpan-identitas").addEventListener("click", async 
   }
 });
 
+/* ---------- singkatan kondisi untuk tampilan cetak (B / KB / RB) ---------- */
+function singkatKondisi(kondisi) {
+  if (kondisi === "Baik") return "B";
+  if (kondisi === "Kurang Baik") return "KB";
+  if (kondisi === "Rusak Berat") return "RB";
+  return kondisi || "-";
+}
+
 /* ---------- tampilkan kartu ---------- */
 async function tampilkanKartu() {
   const ruanganId = selectRuangan.value;
@@ -133,7 +141,7 @@ async function tampilkanKartu() {
   `;
 
   const tbody = document.getElementById("kir-table-body");
-  tbody.innerHTML = `<tr><td colspan="13" style="padding:18px;">Memuat data...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="11" style="padding:18px;">Memuat data...</td></tr>`;
   kirResult.classList.add("show");
   kirResult.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -144,12 +152,12 @@ async function tampilkanKartu() {
   try {
     barangRuangan = await getInventarisByKartu(ruanganId, tahun, semester);
   } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="13" style="padding:18px;color:var(--bad-text);">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="padding:18px;color:var(--bad-text);">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
     return;
   }
 
   if (barangRuangan.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="13" style="padding:18px;">Belum ada data barang untuk kartu <strong>${escapeHtml(ruangan.nama)} — ${escapeHtml(semester)} ${escapeHtml(tahun)}</strong>. Tambahkan barang dengan Tahun KIR ini di menu Data Inventaris, atau pilih arsip lain di atas.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" style="padding:18px;">Belum ada data barang untuk kartu <strong>${escapeHtml(ruangan.nama)} — ${escapeHtml(semester)} ${escapeHtml(tahun)}</strong>. Tambahkan barang dengan Tahun KIR ini di menu Data Inventaris, atau pilih arsip lain di atas.</td></tr>`;
   } else {
     tbody.innerHTML = barangRuangan
       .map(
@@ -161,12 +169,10 @@ async function tampilkanKartu() {
           <td>${escapeHtml(b.noSeri || "-")}</td>
           <td>${escapeHtml(b.noRegister || "-")}</td>
           <td>${escapeHtml(b.bahan || "-")}</td>
-          <td>${escapeHtml(b.tahunPerolehan)}</td>
+          <td>${escapeHtml(b.tahunPerolehan || "-")}</td>
           <td>${escapeHtml(b.kodeBarang || "-")}</td>
           <td>${escapeHtml(b.jumlah)}</td>
-          <td class="cond-mark">${b.kondisi === "Baik" ? "\u2713" : ""}</td>
-          <td class="cond-mark">${b.kondisi === "Kurang Baik" ? "\u2713" : ""}</td>
-          <td class="cond-mark">${b.kondisi === "Rusak Berat" ? "\u2713" : ""}</td>
+          <td class="cond-mark">${escapeHtml(singkatKondisi(b.kondisi))}</td>
           <td class="text-left">${escapeHtml(b.keterangan || "-")}</td>
         </tr>`
       )
