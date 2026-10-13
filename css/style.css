@@ -292,6 +292,14 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; }
   font-weight: 600; font-size: 0.85rem;
 }
 .user-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.user-role {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #e7edf3;
+  color: var(--navy-800);
+}
 
 .content { padding: 28px 32px 60px; flex: 1; }
 
@@ -625,3 +633,40 @@ table.kir-table .cond-mark { font-weight: 700; }
    PRINT: hanya elemen dokumen KIR yang ikut tercetak (lihat print.css)
    ------------------------------------------------------------------------- */
 .print-only { display: none; }
+
+/* -------------------------------------------------------------------------
+   PENDAFTARAN & KELOLA PENGGUNA
+   ------------------------------------------------------------------------- */
+.nav-badge {
+  margin-left: auto;
+  background: #e8a33d;
+  color: #142a42;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-switch { margin: 16px 0 0; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+.link-btn {
+  background: none; border: none; padding: 0;
+  color: var(--blue-600); font-weight: 600; cursor: pointer; text-decoration: underline;
+}
+.login-success {
+  margin-bottom: 16px; padding: 10px 12px; border-radius: 6px;
+  background: var(--good-bg); color: var(--good-text);
+  font-size: 0.85rem; line-height: 1.5;
+}
+.info-bar {
+  margin-bottom: 16px; padding: 10px 14px; border-radius: 6px;
+  background: #eef3f7; font-size: 0.88rem; color: var(--text);
+}
+.info-bar.info-warn { background: var(--warn-bg); color: var(--warn-text); font-weight: 600; }
+.select-peran {
+  padding: 6px 8px; border: 1px solid var(--border-strong);
+  border-radius: 6px; background: #fff;
+}

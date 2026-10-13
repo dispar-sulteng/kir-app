@@ -15,9 +15,8 @@
                      jumlah, kondisi, keterangan)
      identitas(id=1, organisasi, provinsi, pengguna_barang, ...)
 
-   Sesi login (kir_logged_in) TETAP disimpan di LocalStorage — ini sengaja,
-   karena login di aplikasi ini hanya gerbang sederhana di sisi browser,
-   bukan sesi pengguna sungguhan yang perlu dibagi antar perangkat.
+   Login memakai Supabase Auth (lihat auth.js). Hak akses per peran dipaksakan
+   oleh Row Level Security di database (supabase/migration-3-auth-roles.sql).
    ========================================================================= */
 
 const STORAGE_KEYS = {
@@ -136,6 +135,14 @@ function cekError(error, konteks) {
   }
 }
 
+/* Kalau Row Level Security menolak penghapusan, Supabase TIDAK mengembalikan
+   error — hanya 0 baris terhapus. Fungsi ini membuat penolakan itu terlihat. */
+function cekHapus(data) {
+  if (!data || data.length === 0) {
+    throw new Error("Penghapusan ditolak: hanya admin yang boleh menghapus data.");
+  }
+}
+
 /* -------------------------------------------------------------------------
    RUANGAN
    ------------------------------------------------------------------------- */
@@ -164,8 +171,9 @@ async function updateRuangan(id, data) {
 }
 
 async function deleteRuangan(id) {
-  const { error } = await supabaseClient.from("ruangan").delete().eq("id", id);
+  const { data, error } = await supabaseClient.from("ruangan").delete().eq("id", id).select();
   cekError(error, "menghapus ruangan");
+  cekHapus(data);
 }
 
 async function isRuanganDipakai(id) {
@@ -205,8 +213,9 @@ async function updateAset(id, data) {
 }
 
 async function deleteAset(id) {
-  const { error } = await supabaseClient.from("aset").delete().eq("id", id);
+  const { data, error } = await supabaseClient.from("aset").delete().eq("id", id).select();
   cekError(error, "menghapus aset");
+  cekHapus(data);
 }
 
 async function jumlahPemakaianAset(asetId) {
@@ -246,8 +255,9 @@ async function updateInventaris(id, data) {
 }
 
 async function deleteInventaris(id) {
-  const { error } = await supabaseClient.from("inventaris_kir").delete().eq("id", id);
+  const { data, error } = await supabaseClient.from("inventaris_kir").delete().eq("id", id).select();
   cekError(error, "menghapus pencatatan barang");
+  cekHapus(data);
 }
 
 /* ---------- Gabungan (join) inventaris + aset + ruangan, memakai relasi
@@ -355,4 +365,34 @@ async function getIdentitas() {
 async function saveIdentitas(data) {
   const { error } = await supabaseClient.from("identitas").upsert({ id: 1, ...identitasToRow(data) });
   cekError(error, "menyimpan identitas kartu");
+}
+
+/* -------------------------------------------------------------------------
+   PROFIL PENGGUNA (dipakai halaman Kelola Pengguna — khusus admin)
+   ------------------------------------------------------------------------- */
+function rowToProfil(row) {
+  return {
+    id: row.id,
+    nama: row.nama || row.email || "(tanpa nama)",
+    email: row.email || "",
+    role: row.role,
+    aktif: !!row.aktif,
+  };
+}
+
+async function getProfilList() {
+  const { data, error } = await supabaseClient.from("profiles").select("*");
+  cekError(error, "mengambil daftar pengguna");
+  // akun yang menunggu persetujuan ditampilkan paling atas
+  return (data || [])
+    .map(rowToProfil)
+    .sort((a, b) => (a.aktif - b.aktif) || a.nama.localeCompare(b.nama));
+}
+
+async function updateProfil(id, perubahan) {
+  const { data, error } = await supabaseClient.from("profiles").update(perubahan).eq("id", id).select();
+  cekError(error, "memperbarui pengguna");
+  if (!data || data.length === 0) {
+    throw new Error("Perubahan ditolak: hanya admin yang boleh mengelola pengguna.");
+  }
 }

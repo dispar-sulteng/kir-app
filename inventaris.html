@@ -6,9 +6,15 @@
 <title>Data Inventaris — Sistem Informasi KIR</title>
 <link rel="stylesheet" href="css/style.css" />
 <script>
-  if (localStorage.getItem("kir_logged_in") !== "true") {
-    window.location.href = "index.html";
-  }
+  // Pengecekan cepat supaya halaman tidak sempat tampil tanpa login.
+  // Pengecekan sebenarnya (sesi valid + peran) dilakukan di auth.js.
+  (function () {
+    var ada = false;
+    for (var i = 0; i < localStorage.length; i++) {
+      if (/^sb-.+-auth-token$/.test(localStorage.key(i))) { ada = true; break; }
+    }
+    if (!ada) window.location.href = "index.html";
+  })();
 </script>
 </head>
 <body>

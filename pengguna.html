@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kelola Pengguna — Sistem Informasi KIR</title>
+<link rel="stylesheet" href="css/style.css" />
+<script>
+  // Pengecekan cepat supaya halaman tidak sempat tampil tanpa login.
+  // Pengecekan sebenarnya (sesi valid + peran) dilakukan di auth.js.
+  (function () {
+    var ada = false;
+    for (var i = 0; i < localStorage.length; i++) {
+      if (/^sb-.+-auth-token$/.test(localStorage.key(i))) { ada = true; break; }
+    }
+    if (!ada) window.location.href = "index.html";
+  })();
+</script>
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content">
+      <p style="font-size:0.85rem;color:var(--text-muted);margin:0 0 14px;">
+        Staf mendaftar sendiri lewat halaman login. Akun baru berstatus <strong>Menunggu persetujuan</strong> dan belum bisa melihat data sampai kamu menyetujuinya di sini. Staf boleh lihat, cetak, tambah, dan edit data; hanya Admin yang boleh menghapus.
+      </p>
+
+      <div class="info-bar" id="info-menunggu"></div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Peran</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabel-pengguna-body"></tbody>
+        </table>
+      </div>
+
+      <p style="font-size:0.8rem;color:var(--text-faint);margin-top:12px;">
+        Akun yang dinonaktifkan tidak bisa masuk lagi, tetapi datanya tetap tercatat. Untuk menghapus akun sepenuhnya, gunakan Authentication &rarr; Users di dashboard Supabase.
+      </p>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/pengguna.js"></script>
+</body>
+</html>

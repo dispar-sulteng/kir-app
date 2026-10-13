@@ -2,8 +2,6 @@
    kir.js
    ========================================================================= */
 
-requireLogin();
-renderShell("kir", "Kartu Inventaris Ruangan");
 
 const selectRuangan = document.getElementById("pilih-ruangan");
 const selectSemester = document.getElementById("pilih-semester");
@@ -192,6 +190,8 @@ document.getElementById("btn-cetak").addEventListener("click", () => window.prin
 
 /* ---------- init ---------- */
 (async function init() {
+  await requireLogin();
+  renderShell("kir", "Kartu Inventaris Ruangan");
   inputTahun.value = new Date().getFullYear();
   await refreshRuanganDropdown();
   await renderArsipList();

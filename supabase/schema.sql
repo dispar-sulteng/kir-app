@@ -103,3 +103,9 @@ insert into inventaris_kir (id, aset_id, ruangan_id, tahun_kir, semester_kir, ju
   ('inv-6', 'aset-6', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah'),
   ('inv-7', 'aset-7', 'ruang-lobby-bawah', 2024, 'Semester I', '1', 'Baik', 'Koridor Bawah')
 on conflict (id) do nothing;
+
+-- -------------------------------------------------------------------------
+-- CATATAN: aturan akses di atas ("izinkan semua") hanya untuk tahap awal.
+-- Setelah skrip ini, jalankan juga migration-3-auth-roles.sql untuk
+-- mengaktifkan login dan pembagian peran admin/staf.
+-- -------------------------------------------------------------------------

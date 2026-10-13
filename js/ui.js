@@ -9,9 +9,11 @@ const NAV_ITEMS = [
   { key: "inventaris", href: "inventaris.html", label: "Data Inventaris", icon: "box" },
   { key: "ruangan", href: "ruangan.html", label: "Data Ruangan", icon: "door" },
   { key: "kir", href: "kir.html", label: "Kartu Inventaris Ruangan", icon: "card" },
+  { key: "pengguna", href: "pengguna.html", label: "Kelola Pengguna", icon: "users", adminOnly: true },
 ];
 
 const ICONS = {
+  users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14.2c2.6.2 4.5 2 4.5 5.3"/></svg>',
   grid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>',
   box: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7.5 12 3l9 4.5-9 4.5-9-4.5Z"/><path d="M3 7.5v9L12 21l9-4.5v-9"/><path d="M12 12v9"/></svg>',
   door: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="3" width="14" height="18" rx="1"/><circle cx="14.5" cy="12" r="1"/></svg>',
@@ -30,7 +32,7 @@ function renderShell(activeKey, pageTitle) {
         <span class="brand-text">Sistem Inventaris<br/>Dispar Sulteng</span>
       </div>
       <nav class="nav">
-        ${NAV_ITEMS.map(
+        ${NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin()).map(
           (item) => `
           <a class="nav-link ${item.key === activeKey ? "active" : ""}" href="${item.href}">
             <span class="nav-icon">${ICONS[item.icon]}</span>
@@ -44,6 +46,7 @@ function renderShell(activeKey, pageTitle) {
       </button>
     `;
     document.getElementById("btn-logout").addEventListener("click", logout);
+    if (isAdmin()) tampilkanBadgePengguna();
   }
 
   if (topbarEl) {
@@ -52,6 +55,7 @@ function renderShell(activeKey, pageTitle) {
       <div class="topbar-user">
         <span class="user-avatar">${currentUser().charAt(0).toUpperCase()}</span>
         <span class="user-name">${escapeHtml(currentUser())}</span>
+        <span class="user-role">${escapeHtml(currentRoleLabel())}</span>
       </div>
     `;
   }
@@ -96,4 +100,15 @@ function formatTanggalIndo(dateStr) {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
   return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+/* Lencana angka di menu "Kelola Pengguna": jumlah akun yang menunggu persetujuan */
+async function tampilkanBadgePengguna() {
+  const { count, error } = await supabaseClient
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("aktif", false);
+  if (error || !count) return;
+  const link = document.querySelector('.nav-link[href="pengguna.html"]');
+  if (link) link.insertAdjacentHTML("beforeend", `<span class="nav-badge">${count}</span>`);
 }

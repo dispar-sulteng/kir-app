@@ -2,8 +2,6 @@
    inventaris.js
    ========================================================================= */
 
-requireLogin();
-renderShell("inventaris", "Data Inventaris");
 
 const tbody = document.getElementById("tabel-barang-body");
 const filterSearch = document.getElementById("filter-search");
@@ -131,7 +129,7 @@ async function renderTabel() {
           <div class="col-actions">
             <button class="btn btn-secondary btn-sm" data-action="lihat" data-id="${inv.id}">Lihat</button>
             <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${inv.id}">Edit</button>
-            <button class="btn btn-danger btn-sm" data-action="hapus" data-id="${inv.id}">Hapus</button>
+            ${isAdmin() ? `<button class="btn btn-danger btn-sm" data-action="hapus" data-id="${inv.id}">Hapus</button>` : ""}
           </div>
         </td>
       </tr>`
@@ -386,6 +384,10 @@ tbody.addEventListener("click", async (e) => {
   if (btn.dataset.action === "lihat") openModalLihat(id);
   if (btn.dataset.action === "edit") openModalEdit(id);
   if (btn.dataset.action === "hapus") {
+    if (!isAdmin()) {
+      showToast("Hanya admin yang boleh menghapus data.", "danger");
+      return;
+    }
     const inv = await getInventarisById(id);
     const aset = inv ? await getAsetById(inv.asetId) : null;
     const konfirmasi = window.confirm(
@@ -417,6 +419,8 @@ document.getElementById("modal-lihat-tutup").addEventListener("click", () => mod
 
 /* ---------- init ---------- */
 (async function init() {
+  await requireLogin();
+  renderShell("inventaris", "Data Inventaris");
   await refreshRuanganOptions();
   await refreshTahunKirFilterOptions();
   await renderTabel();

@@ -2,8 +2,6 @@
    ruangan.js
    ========================================================================= */
 
-requireLogin();
-renderShell("ruangan", "Data Ruangan");
 
 const grid = document.getElementById("ruangan-grid");
 const modalRuangan = document.getElementById("modal-ruangan");
@@ -36,7 +34,7 @@ async function renderGrid() {
         <span class="ruangan-meta">${jumlahBarang} jenis barang tercatat</span>
         <div class="col-actions">
           <button class="btn btn-secondary btn-sm" data-action="edit" data-id="${r.id}">Edit</button>
-          <button class="btn btn-danger btn-sm" data-action="hapus" data-id="${r.id}">Hapus</button>
+          ${isAdmin() ? `<button class="btn btn-danger btn-sm" data-action="hapus" data-id="${r.id}">Hapus</button>` : ""}
         </div>
       </div>`;
     })
@@ -111,6 +109,10 @@ grid.addEventListener("click", async (e) => {
 
   if (btn.dataset.action === "edit") openModalEdit(id);
   if (btn.dataset.action === "hapus") {
+    if (!isAdmin()) {
+      showToast("Hanya admin yang boleh menghapus data.", "danger");
+      return;
+    }
     const r = await getRuanganById(id);
     const dipakai = await isRuanganDipakai(id);
     if (dipakai) {
@@ -134,4 +136,7 @@ document.getElementById("btn-tambah-ruangan").addEventListener("click", openModa
 document.getElementById("modal-ruangan-close").addEventListener("click", closeModal);
 document.getElementById("modal-ruangan-cancel").addEventListener("click", closeModal);
 
-renderGrid();
+requireLogin().then(() => {
+  renderShell("ruangan", "Data Ruangan");
+  renderGrid();
+});

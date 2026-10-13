@@ -2,8 +2,6 @@
    dashboard.js
    ========================================================================= */
 
-requireLogin();
-renderShell("dashboard", "Dashboard");
 
 const ICON_WRAP = {
   total: { bg: "#e7edf3", color: "#1c3a5a", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7.5 12 3l9 4.5-9 4.5-9-4.5Z"/><path d="M3 7.5v9L12 21l9-4.5v-9"/></svg>' },
@@ -67,4 +65,7 @@ async function render() {
     .join("");
 }
 
-render();
+requireLogin().then(() => {
+  renderShell("dashboard", "Dashboard");
+  render();
+});

@@ -13,28 +13,60 @@
     <h1>Sistem Informasi Kartu Inventaris Ruangan</h1>
     <p class="subtitle">Dinas Pariwisata Provinsi Sulawesi Tengah — silakan masuk untuk mengelola data inventaris.</p>
 
+    <div class="login-success" id="info-sukses" style="display:none;"></div>
+
+    <!-- FORM MASUK -->
     <form id="form-login" novalidate>
       <div class="field">
-        <label for="username">Nama Pengguna</label>
-        <input type="text" id="username" name="username" autocomplete="username" placeholder="Masukkan nama pengguna" />
-        <div class="field-error" id="err-username">Nama pengguna wajib diisi.</div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" autocomplete="username" placeholder="nama@contoh.com" />
+        <div class="field-error" id="err-email">Email wajib diisi.</div>
       </div>
       <div class="field">
         <label for="password">Kata Sandi</label>
         <input type="password" id="password" name="password" autocomplete="current-password" placeholder="Masukkan kata sandi" />
         <div class="field-error" id="err-password">Kata sandi wajib diisi.</div>
       </div>
-      <div class="field-error" id="err-login" style="margin-bottom:14px;">Nama pengguna atau kata sandi salah.</div>
-      <button type="submit" class="btn btn-primary btn-block">Masuk</button>
+      <div class="field-error" id="err-login" style="margin-bottom:14px;">Email atau kata sandi salah.</div>
+      <button type="submit" class="btn btn-primary btn-block" id="btn-login">Masuk</button>
     </form>
 
+    <!-- FORM DAFTAR -->
+    <form id="form-daftar" novalidate style="display:none;">
+      <div class="field">
+        <label for="daftar-nama">Nama Lengkap</label>
+        <input type="text" id="daftar-nama" autocomplete="name" placeholder="Nama sesuai identitas kepegawaian" />
+        <div class="field-error" id="err-daftar-nama">Nama lengkap wajib diisi.</div>
+      </div>
+      <div class="field">
+        <label for="daftar-email">Email</label>
+        <input type="email" id="daftar-email" autocomplete="email" placeholder="nama@contoh.com" />
+        <div class="field-error" id="err-daftar-email">Masukkan email yang valid.</div>
+      </div>
+      <div class="field">
+        <label for="daftar-password">Kata Sandi</label>
+        <input type="password" id="daftar-password" autocomplete="new-password" placeholder="Minimal 8 karakter" />
+        <div class="field-error" id="err-daftar-password">Kata sandi minimal 8 karakter.</div>
+      </div>
+      <div class="field">
+        <label for="daftar-konfirmasi">Ulangi Kata Sandi</label>
+        <input type="password" id="daftar-konfirmasi" autocomplete="new-password" placeholder="Ketik ulang kata sandi" />
+        <div class="field-error" id="err-daftar-konfirmasi">Kata sandi tidak sama.</div>
+      </div>
+      <div class="field-error" id="err-daftar" style="margin-bottom:14px;"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="btn-daftar">Daftar</button>
+    </form>
+
+    <p class="auth-switch" id="switch-ke-daftar">Belum punya akun? <button type="button" class="link-btn" id="btn-ke-daftar">Daftar</button></p>
+    <p class="auth-switch" id="switch-ke-masuk" style="display:none;">Sudah punya akun? <button type="button" class="link-btn" id="btn-ke-masuk">Masuk</button></p>
+
     <div class="login-hint">
-      Demo prototype — gunakan akun berikut untuk masuk:<br />
-      Nama pengguna: <code>admin</code> &nbsp; Kata sandi: <code>admin123</code>
+      Akun baru harus disetujui admin sebelum bisa dipakai. Lupa kata sandi? Hubungi admin sistem.
     </div>
   </div>
 
-<script src="js/storage.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/login.js"></script>
 </body>
