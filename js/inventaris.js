@@ -91,16 +91,31 @@ async function refreshKatalogOptions() {
 }
 
 /* ---------- render tabel ---------- */
+const tunggu = (ms) => new Promise((selesai) => setTimeout(selesai, ms));
+let nomorPermintaan = 0;
+
 async function renderTabel() {
+  // Tiap pemanggilan diberi nomor. Kalau ada pemanggilan yang lebih baru,
+  // hasil pemanggilan lama dibuang supaya tidak menimpa tampilan yang benar.
+  const nomor = ++nomorPermintaan;
   tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>Memuat data...</p></div></td></tr>`;
 
   let joined;
   try {
     joined = await getInventarisJoined();
+    // Hasil kosong sesaat setelah halaman dibuka kadang terjadi karena sesi login
+    // belum siap dipakai di permintaan pertama. Coba sekali lagi sebelum
+    // menyimpulkan datanya memang kosong.
+    if (joined.length === 0) {
+      await tunggu(800);
+      joined = await getInventarisJoined();
+    }
   } catch (err) {
+    if (nomor !== nomorPermintaan) return;
     tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state" style="color:var(--bad-text);"><p>Gagal memuat data: ${escapeHtml(err.message)}</p></div></td></tr>`;
     return;
   }
+  if (nomor !== nomorPermintaan) return;
 
   const keyword = filterSearch.value.trim().toLowerCase();
   const ruanganFilter = filterRuangan.value;
@@ -445,8 +460,16 @@ document.getElementById("modal-lihat-tutup").addEventListener("click", () => mod
 (async function init() {
   await requireLogin();
   renderShell("inventaris", "Data Inventaris");
-  await refreshRuanganOptions();
-  await refreshTahunKirFilterOptions();
-  await refreshPeriodeOptions();
-  await renderTabel();
+  // Tabel dimuat lebih dulu dan terpisah dari pengisian pilihan filter, jadi
+  // kegagalan di salah satu filter tidak lagi membuat tabel tetap kosong.
+  const tabel = renderTabel();
+  const hasil = await Promise.allSettled([
+    refreshRuanganOptions(),
+    refreshTahunKirFilterOptions(),
+    refreshPeriodeOptions(),
+  ]);
+  if (hasil.some((h) => h.status === "rejected")) {
+    showToast("Sebagian pilihan filter gagal dimuat. Muat ulang halaman jika perlu.", "danger");
+  }
+  await tabel;
 })();

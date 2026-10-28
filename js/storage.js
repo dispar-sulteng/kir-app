@@ -135,6 +135,24 @@ function cekError(error, konteks) {
   }
 }
 
+/* Supabase membatasi setiap permintaan data paling banyak 1000 baris (bawaan).
+   Tanpa penanganan khusus, data di atas 1000 baris DIPOTONG diam-diam: tabel,
+   total di Dashboard, dan daftar filter jadi tidak lengkap. Fungsi ini
+   mengambil data per halaman 1000 baris sampai habis. Urutan harus tetap
+   (order by) supaya antar halaman tidak ada baris yang terlewat/terulang. */
+async function ambilSemuaBaris(buatQuery, konteks) {
+  const UKURAN = 1000;
+  let semua = [];
+  for (let dari = 0; ; dari += UKURAN) {
+    const { data, error } = await buatQuery().range(dari, dari + UKURAN - 1);
+    cekError(error, konteks);
+    const baris = data || [];
+    semua = semua.concat(baris);
+    if (baris.length < UKURAN) break;
+  }
+  return semua;
+}
+
 /* Kalau Row Level Security menolak penghapusan, Supabase TIDAK mengembalikan
    error — hanya 0 baris terhapus. Fungsi ini membuat penolakan itu terlihat. */
 function cekHapus(data) {
@@ -147,9 +165,11 @@ function cekHapus(data) {
    RUANGAN
    ------------------------------------------------------------------------- */
 async function getRuanganList() {
-  const { data, error } = await supabaseClient.from("ruangan").select("*").order("nama");
-  cekError(error, "mengambil data ruangan");
-  return (data || []).map(rowToRuangan);
+  const data = await ambilSemuaBaris(
+    () => supabaseClient.from("ruangan").select("*").order("nama").order("id"),
+    "mengambil data ruangan"
+  );
+  return data.map(rowToRuangan);
 }
 
 async function getRuanganById(id) {
@@ -189,9 +209,11 @@ async function isRuanganDipakai(id) {
    ASET (katalog master barang)
    ------------------------------------------------------------------------- */
 async function getAsetList() {
-  const { data, error } = await supabaseClient.from("aset").select("*").order("nama_barang");
-  cekError(error, "mengambil data aset");
-  return (data || []).map(rowToAset);
+  const data = await ambilSemuaBaris(
+    () => supabaseClient.from("aset").select("*").order("nama_barang").order("id"),
+    "mengambil data aset"
+  );
+  return data.map(rowToAset);
 }
 
 async function getAsetById(id) {
@@ -231,9 +253,11 @@ async function jumlahPemakaianAset(asetId) {
    INVENTARIS KIR (pencatatan barang pada satu Kartu Inventaris Ruangan)
    ------------------------------------------------------------------------- */
 async function getInventarisList() {
-  const { data, error } = await supabaseClient.from("inventaris_kir").select("*");
-  cekError(error, "mengambil data inventaris");
-  return (data || []).map(rowToInventaris);
+  const data = await ambilSemuaBaris(
+    () => supabaseClient.from("inventaris_kir").select("*").order("id"),
+    "mengambil data inventaris"
+  );
+  return data.map(rowToInventaris);
 }
 
 async function getInventarisById(id) {
@@ -286,9 +310,11 @@ function petakanBarisGabungan(row) {
 }
 
 async function getInventarisJoined() {
-  const { data, error } = await supabaseClient.from("inventaris_kir").select("*, aset(*), ruangan(*)");
-  cekError(error, "mengambil data inventaris (gabungan)");
-  return (data || []).map(petakanBarisGabungan);
+  const data = await ambilSemuaBaris(
+    () => supabaseClient.from("inventaris_kir").select("*, aset(*), ruangan(*)").order("id"),
+    "mengambil data inventaris (gabungan)"
+  );
+  return data.map(petakanBarisGabungan);
 }
 
 /* ---------- Query utama: SEMUA baris untuk satu kombinasi ruangan+tahun
@@ -296,20 +322,31 @@ async function getInventarisJoined() {
    Cetak KIR — TIDAK ADA pembatasan jumlah (no .limit()) supaya hasil
    cetak selalu lengkap. ---------- */
 async function getInventarisByKartu(ruanganId, tahunKir, semesterKir) {
-  const { data, error } = await supabaseClient
-    .from("inventaris_kir")
-    .select("*, aset(*), ruangan(*)")
-    .eq("ruangan_id", ruanganId)
-    .eq("tahun_kir", Number(tahunKir))
-    .eq("semester_kir", semesterKir);
-  cekError(error, "mengambil data untuk cetak KIR");
-  return (data || []).map(petakanBarisGabungan);
+  const data = await ambilSemuaBaris(
+    () =>
+      supabaseClient
+        .from("inventaris_kir")
+        .select("*, aset(*), ruangan(*)")
+        .eq("ruangan_id", ruanganId)
+        .eq("tahun_kir", Number(tahunKir))
+        .eq("semester_kir", semesterKir)
+        .order("id"),
+    "mengambil data untuk cetak KIR"
+  );
+  return data.map(petakanBarisGabungan);
 }
 
 async function getDistinctTahunKirList() {
-  const { data, error } = await supabaseClient.from("inventaris_kir").select("tahun_kir");
-  if (error) return [];
-  const tahunSet = new Set((data || []).map((r) => Number(r.tahun_kir)));
+  let data;
+  try {
+    data = await ambilSemuaBaris(
+      () => supabaseClient.from("inventaris_kir").select("tahun_kir").order("id"),
+      "mengambil daftar tahun KIR"
+    );
+  } catch (e) {
+    return [];
+  }
+  const tahunSet = new Set(data.map((r) => Number(r.tahun_kir)));
   return Array.from(tahunSet).sort((a, b) => b - a);
 }
 
@@ -409,9 +446,16 @@ function rapikanPeriode(teks) {
 }
 
 async function getDistinctPeriodeList() {
-  const { data, error } = await supabaseClient.from("inventaris_kir").select("semester_kir");
-  if (error) return [];
-  const set = new Set((data || []).map((r) => r.semester_kir).filter(Boolean));
+  let data;
+  try {
+    data = await ambilSemuaBaris(
+      () => supabaseClient.from("inventaris_kir").select("semester_kir").order("id"),
+      "mengambil daftar periode"
+    );
+  } catch (e) {
+    return [];
+  }
+  const set = new Set(data.map((r) => r.semester_kir).filter(Boolean));
   return Array.from(set).sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
 }
 
@@ -419,4 +463,9 @@ async function getDaftarPeriodeSaran() {
   const ada = await getDistinctPeriodeList();
   const gabung = new Set([...PERIODE_DEFAULT, ...ada]);
   return Array.from(gabung).sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
+}
+
+async function hapusPengguna(id) {
+  const { error } = await supabaseClient.rpc("hapus_pengguna", { target_id: id });
+  cekError(error, "menghapus pengguna");
 }

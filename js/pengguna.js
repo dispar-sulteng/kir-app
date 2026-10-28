@@ -47,10 +47,12 @@ async function renderPengguna() {
            </select>`;
 
       let aksi = "-";
-      if (!saya && !p.aktif) {
-        aksi = `<button class="btn btn-primary btn-sm" data-action="setujui" data-id="${p.id}">Setujui</button>`;
-      } else if (!saya) {
-        aksi = `<button class="btn btn-danger btn-sm" data-action="nonaktifkan" data-id="${p.id}">Nonaktifkan</button>`;
+      if (!saya) {
+        const tombolUtama = p.aktif
+          ? `<button class="btn btn-secondary btn-sm" data-action="nonaktifkan" data-id="${p.id}">Nonaktifkan</button>`
+          : `<button class="btn btn-primary btn-sm" data-action="setujui" data-id="${p.id}">Setujui</button>`;
+        const tombolHapus = `<button class="btn btn-danger btn-sm" data-action="hapus" data-id="${p.id}">Hapus</button>`;
+        aksi = tombolUtama + tombolHapus;
       }
 
       return `
@@ -92,6 +94,25 @@ tbody.addEventListener("click", async (e) => {
 
   if (btn.dataset.action === "setujui") {
     await simpanPerubahan(id, { aktif: true }, `Akun ${p.nama} disetujui.`);
+  }
+  if (btn.dataset.action === "hapus") {
+    const ok = window.confirm(
+      `Hapus akun "${p.nama}" (${p.email || "tanpa email"}) secara PERMANEN?\n\n` +
+      `Akun dan akses masuknya dihapus dan tidak bisa dikembalikan. ` +
+      `Data inventaris yang pernah ia input tidak ikut terhapus. ` +
+      `Kalau ingin memakai sistem lagi, ia harus mendaftar ulang dan disetujui kembali.\n\n` +
+      `(Pilih "Nonaktifkan" kalau hanya ingin menutup aksesnya sementara.)`
+    );
+    if (ok) {
+      try {
+        await hapusPengguna(id);
+        showToast(`Akun ${p.nama} dihapus.`);
+      } catch (err) {
+        showToast(err.message, "danger");
+      }
+      await renderPengguna();
+      tampilkanBadgeSetelahUbah();
+    }
   }
   if (btn.dataset.action === "nonaktifkan") {
     const ok = window.confirm(`Nonaktifkan akun "${p.nama}"?\n\nAkun ini tidak akan bisa masuk lagi sampai disetujui kembali.`);
