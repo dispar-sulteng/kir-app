@@ -558,8 +558,8 @@ table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
 }
 
 .kir-doc-head { text-align: center; margin-bottom: 18px; }
-.kir-doc-head .doc-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; margin: 0 0 2px; text-transform: uppercase; }
-.kir-doc-head .doc-subtitle { font-size: 0.95rem; margin: 0; }
+.kir-doc-head .doc-province { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.03em; margin: 0 0 4px; text-transform: uppercase; }
+.kir-doc-head .doc-title { font-size: 1.5rem; font-weight: 700; letter-spacing: 0.04em; margin: 0; text-transform: uppercase; }
 
 .kir-doc-meta {
   display: grid;
@@ -594,6 +594,7 @@ table.kir-table .cond-mark { font-weight: 700; }
   text-align: center;
   font-size: 0.9rem;
 }
+.kir-doc-signatures .sign-date { margin: 0 0 6px; line-height: 1.4; min-height: 1.4em; white-space: pre-wrap; }
 .kir-doc-signatures .sign-role { margin: 0 0 4px; line-height: 1.4; min-height: 2.8em; }
 .kir-doc-signatures .sign-space { height: 64px; }
 .kir-doc-signatures .sign-line {

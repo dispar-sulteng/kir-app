@@ -36,15 +36,14 @@
             <option value="">Semua Tahun KIR</option>
           </select>
           <select id="filter-semester-kir">
-            <option value="">Semua Semester KIR</option>
-            <option value="Semester I">Semester I</option>
-            <option value="Semester II">Semester II</option>
+            <option value="">Semua Periode KIR</option>
           </select>
           <select id="filter-kondisi">
             <option value="">Semua Kondisi</option>
             <option value="Baik">Baik</option>
             <option value="Kurang Baik">Kurang Baik</option>
             <option value="Rusak Berat">Rusak Berat</option>
+            <option value="__kosong__">Tanpa kondisi</option>
           </select>
         </div>
         <button class="btn btn-primary" id="btn-tambah-barang" type="button">+ Tambah Barang</button>
@@ -160,11 +159,11 @@
             <div class="field-error" id="err-barang-ruangan">Pilih ruangan terlebih dahulu. Tambahkan ruangan di menu Data Ruangan jika belum ada.</div>
           </div>
           <div class="field">
-            <label for="barang-semester-kir">Semester KIR *</label>
-            <select id="barang-semester-kir">
-              <option value="Semester I">Semester I</option>
-              <option value="Semester II">Semester II</option>
-            </select>
+            <label for="barang-semester-kir">Periode KIR *</label>
+            <input type="text" id="barang-semester-kir" list="daftar-periode" autocomplete="off" placeholder="Contoh: Semester I" />
+            <datalist id="daftar-periode"></datalist>
+            <div class="field-error" id="err-barang-semester-kir">Periode wajib diisi.</div>
+            <div style="font-size:0.78rem;color:var(--text-faint);margin-top:4px;">Pilih dari saran, atau ketik periode baru. Hapus isian untuk melihat semua saran.</div>
           </div>
 
           <div class="field">
@@ -179,11 +178,12 @@
           </div>
 
           <div class="field">
-            <label for="barang-kondisi">Kondisi *</label>
+            <label for="barang-kondisi">Kondisi</label>
             <select id="barang-kondisi">
               <option value="Baik">Baik</option>
               <option value="Kurang Baik">Kurang Baik</option>
               <option value="Rusak Berat">Rusak Berat</option>
+              <option value="">(Kosong / tidak diketahui)</option>
             </select>
           </div>
           <div class="field"></div>

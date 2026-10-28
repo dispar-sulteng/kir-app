@@ -43,8 +43,8 @@
     width: 100%;
   }
 
-  .kir-doc-head .doc-title { font-size: 15pt; }
-  .kir-doc-head .doc-subtitle { font-size: 12pt; }
+  .kir-doc-head .doc-province { font-size: 12pt; }
+  .kir-doc-head .doc-title { font-size: 18pt; }
 
   .kir-doc-meta { font-size: 10.5pt; }
 

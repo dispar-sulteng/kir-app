@@ -60,6 +60,21 @@ async function refreshTahunKirFilterOptions() {
   }
 }
 
+/* ---------- isi opsi periode (filter + saran di form) ---------- */
+async function refreshPeriodeOptions() {
+  const [ada, saran] = await Promise.all([getDistinctPeriodeList(), getDaftarPeriodeSaran()]);
+  const dipilih = filterSemesterKir.value;
+
+  filterSemesterKir.innerHTML =
+    `<option value="">Semua Periode KIR</option>` +
+    ada.map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
+  if (ada.includes(dipilih)) filterSemesterKir.value = dipilih;
+
+  document.getElementById("daftar-periode").innerHTML = saran
+    .map((p) => `<option value="${escapeHtml(p)}"></option>`)
+    .join("");
+}
+
 /* ---------- isi dropdown katalog aset ---------- */
 async function refreshKatalogOptions() {
   const asetList = await getAsetList();
@@ -98,7 +113,8 @@ async function renderTabel() {
     const cocokRuangan = !ruanganFilter || inv.ruanganId === ruanganFilter;
     const cocokTahunKir = !tahunKirFilter || Number(inv.tahunKir) === Number(tahunKirFilter);
     const cocokSemesterKir = !semesterKirFilter || inv.semesterKir === semesterKirFilter;
-    const cocokKondisi = !kondisiFilter || inv.kondisi === kondisiFilter;
+    const cocokKondisi =
+      !kondisiFilter || (kondisiFilter === "__kosong__" ? !inv.kondisi : inv.kondisi === kondisiFilter);
     return cocokKeyword && cocokRuangan && cocokTahunKir && cocokSemesterKir && cocokKondisi;
   });
 
@@ -121,7 +137,7 @@ async function renderTabel() {
         <td>${escapeHtml(inv.jenisMerek || "-")}</td>
         <td>${escapeHtml(inv.tahunPerolehan || "-")}</td>
         <td>${escapeHtml(inv.jumlah)}</td>
-        <td><span class="${kondisiBadgeClass(inv.kondisi)}">${escapeHtml(inv.kondisi)}</span></td>
+        <td>${inv.kondisi ? `<span class="${kondisiBadgeClass(inv.kondisi)}">${escapeHtml(inv.kondisi)}</span>` : "-"}</td>
         <td>${escapeHtml(inv.namaRuangan)}</td>
         <td>${escapeHtml(inv.semesterKir)} &middot; ${escapeHtml(inv.tahunKir)}</td>
         <td>${escapeHtml(inv.keterangan || "-")}</td>
@@ -180,7 +196,7 @@ selectKatalog.addEventListener("change", async () => {
 
 /* ---------- modal tambah / edit ---------- */
 function resetFormErrors() {
-  ["barang-nama", "barang-tahun-perolehan", "barang-jumlah", "barang-ruangan", "barang-tahun-kir"].forEach((id) => {
+  ["barang-nama", "barang-tahun-perolehan", "barang-jumlah", "barang-ruangan", "barang-tahun-kir", "barang-semester-kir"].forEach((id) => {
     document.getElementById(id).classList.remove("invalid");
   });
   document.querySelectorAll("#form-barang .field-error").forEach((el) => el.classList.remove("show"));
@@ -260,6 +276,7 @@ formBarang.addEventListener("submit", async (e) => {
   const jumlah = document.getElementById("barang-jumlah").value.trim();
   const ruanganId = selectRuanganBarang.value;
   const tahunKir = document.getElementById("barang-tahun-kir").value;
+  const semesterKir = rapikanPeriode(document.getElementById("barang-semester-kir").value);
 
   let valid = true;
   if (!nama) {
@@ -282,6 +299,11 @@ formBarang.addEventListener("submit", async (e) => {
   if (!ruanganId) {
     selectRuanganBarang.classList.add("invalid");
     document.getElementById("err-barang-ruangan").classList.add("show");
+    valid = false;
+  }
+  if (!semesterKir) {
+    document.getElementById("barang-semester-kir").classList.add("invalid");
+    document.getElementById("err-barang-semester-kir").classList.add("show");
     valid = false;
   }
   if (!tahunKir || tahunKir < 1990 || tahunKir > 2100) {
@@ -315,7 +337,7 @@ formBarang.addEventListener("submit", async (e) => {
     const dataInventaris = {
       asetId,
       ruanganId,
-      semesterKir: document.getElementById("barang-semester-kir").value,
+      semesterKir,
       tahunKir: Number(tahunKir),
       jumlah,
       kondisi: document.getElementById("barang-kondisi").value,
@@ -333,6 +355,7 @@ formBarang.addEventListener("submit", async (e) => {
 
     closeModalBarang();
     await refreshTahunKirFilterOptions();
+    await refreshPeriodeOptions();
     await renderTabel();
   } catch (err) {
     showToast(err.message, "danger");
@@ -356,7 +379,7 @@ async function openModalLihat(id) {
     ["Tahun Perolehan", inv.tahunPerolehan || "-"],
     ["Kode Barang", inv.kodeBarang],
     ["Jumlah", inv.jumlah],
-    ["Kondisi", inv.kondisi],
+    ["Kondisi", inv.kondisi || "-"],
     ["Ruangan", inv.namaRuangan],
     ["Tahun KIR", `${inv.semesterKir} · ${inv.tahunKir}`],
     ["Keterangan", inv.keterangan || "-"],
@@ -398,6 +421,7 @@ tbody.addEventListener("click", async (e) => {
         await deleteInventaris(id);
         showToast("Barang berhasil dihapus dari kartu ini.");
         await refreshTahunKirFilterOptions();
+        await refreshPeriodeOptions();
         await renderTabel();
       } catch (err) {
         showToast(err.message, "danger");
@@ -423,5 +447,6 @@ document.getElementById("modal-lihat-tutup").addEventListener("click", () => mod
   renderShell("inventaris", "Data Inventaris");
   await refreshRuanganOptions();
   await refreshTahunKirFilterOptions();
+  await refreshPeriodeOptions();
   await renderTabel();
 })();

@@ -17,6 +17,16 @@ async function refreshRuanganDropdown() {
       : `<option value="" disabled selected>Belum ada ruangan</option>`;
 }
 
+/* ---------- isi dropdown periode (bawaan + yang sudah pernah dipakai) ---------- */
+async function refreshPeriodeDropdown() {
+  const daftar = await getDaftarPeriodeSaran();
+  const dipilih = selectSemester.value;
+  selectSemester.innerHTML = daftar
+    .map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`)
+    .join("");
+  if (daftar.includes(dipilih)) selectSemester.value = dipilih;
+}
+
 /* ---------- daftar arsip kartu (ruangan + semester + tahun) ---------- */
 async function renderArsipList() {
   const tbody = document.getElementById("arsip-kartu-body");
@@ -106,7 +116,33 @@ function singkatKondisi(kondisi) {
   if (kondisi === "Baik") return "B";
   if (kondisi === "Kurang Baik") return "KB";
   if (kondisi === "Rusak Berat") return "RB";
-  return kondisi || "-";
+  return kondisi || ""; // kondisi kosong -> kolom dibiarkan kosong di surat
+}
+
+/* ---------- tulisan tempat & tanggal di atas "Penanggung Jawab" ---------- */
+const NAMA_BULAN = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+const JARAK = "\u00A0".repeat(10); // ruang kosong untuk menulis tanggal dengan tangan
+
+function teksTanggalSurat(identitas, semester, tahun) {
+  const kota = identitas.kota ? `${identitas.kota},\u00A0` : "";
+
+  // 1) Tanggal diisi di form identitas -> tampilkan apa adanya
+  if (identitas.tanggal) {
+    const [y, m, d] = identitas.tanggal.split("-").map(Number);
+    if (y && m && d) return `${kota}${d} ${NAMA_BULAN[m - 1]} ${y}`;
+  }
+
+  // 2) Dikosongkan -> bulan mengikuti periode, tanggalnya dikosongkan
+  let bulan = "";
+  if (/\bII\b|\b2\b/.test(semester)) bulan = "Desember";
+  else if (/\bI\b|\b1\b/.test(semester)) bulan = "Juni";
+
+  return bulan
+    ? `${kota}${JARAK}${bulan} ${tahun}`
+    : `${kota}${JARAK}${JARAK}${tahun}`;
 }
 
 /* ---------- tampilkan kartu ---------- */
@@ -128,14 +164,13 @@ async function tampilkanKartu() {
     return;
   }
 
-  document.getElementById("doc-periode-label").textContent = `${semester} — Tahun KIR ${tahun}`;
+  document.getElementById("doc-provinsi").textContent = identitas.provinsi ? `Provinsi ${identitas.provinsi}` : "";
 
   document.getElementById("kir-doc-meta").innerHTML = `
     <div class="lbl">Organisasi Perangkat Daerah</div><div class="sep">:</div><div class="val">${escapeHtml(identitas.organisasi || "-")}</div>
     <div class="lbl">Ruangan</div><div class="sep">:</div><div class="val">${escapeHtml(ruangan.nama)}</div>
-    <div class="lbl">Provinsi</div><div class="sep">:</div><div class="val">${escapeHtml(identitas.provinsi || "-")}</div>
     <div class="lbl">Periode</div><div class="sep">:</div><div class="val">${escapeHtml(semester)}</div>
-    <div class="lbl">Tahun KIR</div><div class="sep">:</div><div class="val">${escapeHtml(tahun)}</div>
+    <div class="lbl">Tahun</div><div class="sep">:</div><div class="val">${escapeHtml(tahun)}</div>
   `;
 
   const tbody = document.getElementById("kir-table-body");
@@ -177,6 +212,7 @@ async function tampilkanKartu() {
       .join("");
   }
 
+  document.getElementById("sign-tanggal").textContent = teksTanggalSurat(identitas, semester, tahun);
   document.getElementById("sign-pengguna").textContent = identitas.penggunaBarang || "-";
   document.getElementById("sign-nip-pengguna").textContent = `NIP. ${identitas.nipPenggunaBarang || "-"}`;
   document.getElementById("sign-pengurus").textContent = identitas.pengurusBarang || "-";
@@ -194,6 +230,7 @@ document.getElementById("btn-cetak").addEventListener("click", () => window.prin
   renderShell("kir", "Kartu Inventaris Ruangan");
   inputTahun.value = new Date().getFullYear();
   await refreshRuanganDropdown();
+  await refreshPeriodeDropdown();
   await renderArsipList();
   await loadIdentitasForm();
 })();

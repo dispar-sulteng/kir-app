@@ -57,11 +57,8 @@
           <select id="pilih-ruangan"></select>
         </div>
         <div class="field">
-          <label for="pilih-semester">Semester KIR</label>
-          <select id="pilih-semester">
-            <option value="Semester I">Semester I</option>
-            <option value="Semester II">Semester II</option>
-          </select>
+          <label for="pilih-semester">Periode KIR</label>
+          <select id="pilih-semester"></select>
         </div>
         <div class="field">
           <label for="pilih-tahun">Tahun KIR</label>
@@ -99,6 +96,7 @@
           <div class="field">
             <label for="id-tanggal">Tanggal</label>
             <input type="date" id="id-tanggal" />
+            <div style="font-size:0.78rem;color:var(--text-faint);margin-top:4px;">Kosongkan agar otomatis: bulan dan tahun mengikuti periode (Semester I = Juni, Semester II = Desember), tanggalnya dibiarkan kosong untuk ditulis tangan.</div>
           </div>
 
           <div class="field">
@@ -131,8 +129,8 @@
 
         <div class="kir-doc" id="kir-doc">
           <div class="kir-doc-head">
+            <p class="doc-province" id="doc-provinsi"></p>
             <p class="doc-title">Kartu Inventaris Ruangan</p>
-            <p class="doc-subtitle" id="doc-periode-label"></p>
           </div>
 
           <div class="kir-doc-meta" id="kir-doc-meta"></div>
@@ -157,10 +155,10 @@
               <tbody id="kir-table-body"></tbody>
             </table>
           </div>
-          <p style="font-size:0.8rem;color:#333;margin:6px 0 0;font-family:var(--font-doc);">Keterangan kondisi: B = Baik, KB = Kurang Baik, RB = Rusak Berat.</p>
 
           <div class="kir-doc-signatures">
             <div>
+              <p class="sign-date">&nbsp;</p>
               <p class="sign-role">Mengetahui,<br/>Pengguna Barang</p>
               <div class="sign-space"></div>
               <div class="sign-line"></div>
@@ -168,6 +166,7 @@
               <p class="sign-nip" id="sign-nip-pengguna">NIP. -</p>
             </div>
             <div>
+              <p class="sign-date">&nbsp;</p>
               <p class="sign-role">Pengurus Barang</p>
               <div class="sign-space"></div>
               <div class="sign-line"></div>
@@ -175,6 +174,7 @@
               <p class="sign-nip" id="sign-nip-pengurus">NIP. -</p>
             </div>
             <div>
+              <p class="sign-date" id="sign-tanggal">&nbsp;</p>
               <p class="sign-role">Penanggung Jawab</p>
               <div class="sign-space"></div>
               <div class="sign-line"></div>

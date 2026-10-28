@@ -72,6 +72,7 @@ function escapeHtml(value) {
 }
 
 function kondisiBadgeClass(kondisi) {
+  if (!kondisi) return "badge";
   if (kondisi === "Baik") return "badge badge-good";
   if (kondisi === "Kurang Baik") return "badge badge-warn";
   return "badge badge-bad";

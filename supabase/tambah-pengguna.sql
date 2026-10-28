@@ -11,7 +11,7 @@
 --    (jalankan setelah migration-4-pendaftaran.sql)
 insert into profiles (id, nama, email, role, aktif)
 select id, 'Administrator', email, 'admin', true from auth.users
-where email = 'dianw185@gmail.com'
+where email = 'GANTI_EMAIL_ADMIN@contoh.com'
 on conflict (id) do update set role = 'admin', aktif = true, nama = 'Administrator';
 
 -- B) UBAH NAMA TAMPIL untuk seorang staf (akun baru otomatis berperan 'staf')

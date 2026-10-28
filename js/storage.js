@@ -396,3 +396,27 @@ async function updateProfil(id, perubahan) {
     throw new Error("Perubahan ditolak: hanya admin yang boleh mengelola pengguna.");
   }
 }
+
+/* -------------------------------------------------------------------------
+   PERIODE KIR (bebas diketik, tidak terbatas Semester I / II)
+   Periode disimpan sebagai teks pada tiap pencatatan. Daftar saran diambil
+   dari periode yang sudah pernah dipakai, ditambah dua bawaan.
+   ------------------------------------------------------------------------- */
+const PERIODE_DEFAULT = ["Semester I", "Semester II"];
+
+function rapikanPeriode(teks) {
+  return String(teks || "").trim().replace(/\s+/g, " ");
+}
+
+async function getDistinctPeriodeList() {
+  const { data, error } = await supabaseClient.from("inventaris_kir").select("semester_kir");
+  if (error) return [];
+  const set = new Set((data || []).map((r) => r.semester_kir).filter(Boolean));
+  return Array.from(set).sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
+}
+
+async function getDaftarPeriodeSaran() {
+  const ada = await getDistinctPeriodeList();
+  const gabung = new Set([...PERIODE_DEFAULT, ...ada]);
+  return Array.from(gabung).sort((a, b) => a.localeCompare(b, "id", { numeric: true }));
+}
